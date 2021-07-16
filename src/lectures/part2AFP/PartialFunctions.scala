@@ -1,4 +1,4 @@
-package lectures.part1FP
+package lectures.part2AFP
 
 object PartialFunctions extends App {
 

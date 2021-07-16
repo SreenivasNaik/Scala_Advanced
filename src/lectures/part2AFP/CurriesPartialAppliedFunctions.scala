@@ -1,4 +1,4 @@
-package lectures.part1FP
+package lectures.part2AFP
 
 object CurriesPartialAppliedFunctions extends App {
  // curried Function :: A function which return another function as result
