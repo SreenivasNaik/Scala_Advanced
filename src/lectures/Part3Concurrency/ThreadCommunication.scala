@@ -179,6 +179,73 @@ object ThreadCommunication extends App {
     (1 to nProducer).foreach(i=> new Producer(i,buffer,capacity).start())
   }
 
-  multiProdCOns(3,3)
+  //multiProdCOns(3,3)
 
+  /*
+  *  Exercises
+  *   1. Think of an example where notifyall acts in a different way
+  *   2. Create a dead lock
+  *   3. create a liveLock
+  * */
+
+   // NotifyAll
+  def testnotifyAll():Unit = {
+    val bell = new Object
+    (1 to 10).foreach(i=> new Thread(()=>{
+      bell.synchronized{
+        println(s"[Thread: $i] waiting")
+        bell.wait()
+        println(s"[Thread: $i] woken")
+      }
+    }).start())
+
+    new Thread(()=>{
+      Thread.sleep(2000)
+      println("[Annoncer] Rock")
+      bell.synchronized{
+        bell.notifyAll()
+      }
+    }).start()
+  }
+  //testnotifyAll()
+
+  // DeadLock
+  case class Friend(name:String){
+    def bow(other:Friend) = {
+      this.synchronized{
+        println(s"$this :I am bowing to my friend $other")
+        other.rise(this)
+        println(s"$this :my friend $other has risen")
+      }
+    }
+    def rise(friend:Friend): Unit ={
+      this.synchronized{
+        println(s"$this :I am rising $friend ")
+      }
+    }
+
+    var side = "right"
+    def switchSide():Unit ={
+      if(side == "right") side = "left"
+      else side = "right"
+
+      }
+    def pass(other:Friend):Unit = {
+      while (this.side == other.side){
+        println(s"$this: oh please $other, feel free to pass")
+        switchSide()
+        Thread.sleep(1000)
+      }
+    }
+    }
+
+  val sam = Friend("sam")
+  val prince = Friend("prince")
+  //new Thread(()=> sam.bow(prince)).start()
+  //new Thread(()=> prince.bow(sam)).start()
+
+  // 3 - Live Lock
+  new Thread(()=>sam.pass(prince)).start()
+  new Thread(()=>prince.pass(sam)).start()
 }
+
