@@ -31,7 +31,7 @@ object TypeClasses extends App{
   trait HTMLSerializer[T] {
     def serialize(value:T) : String
   }
-  object UserSerializer extends HTMLSerializer[User] {
+ implicit object UserSerializer extends HTMLSerializer[User] {
     override def serialize(value: User): String =s"<div>${value.name} (${value.age} yo) <a href = ${value.email}/> </div>"
   }
 
@@ -44,18 +44,12 @@ object TypeClasses extends App{
     override def serialize(value: Date): String = s"<div>${value.toString} </div>"
   }
   // we can define multiple serializer
- implicit object PartialUserSerializer extends HTMLSerializer[User] {
+  object PartialUserSerializer extends HTMLSerializer[User] {
     override def serialize(value: User): String =s"<div>${value.name}  </div>"
   }
 
   // TYPE CLASS -> Specifies the set of operations that can apply on the specific types
   // Singleton objects
-  trait MyTypeClassTemplate[T]{
-    def action(value:T):String
-  }
-  object MyTypeClassTemplate{
-    def apply[T](implicit instance:MyTypeClassTemplate[T])= instance
-  }
 
   // apply implicits
 
@@ -81,21 +75,24 @@ object TypeClasses extends App{
   /* Equlity
   * */
 
-  trait Equal[T]{
-    def apply(a:T,b:T):Boolean
-  }
-  object Equal{
-    def apply[T](a:T,b:T)(implicit equalizer:Equal[T]):Boolean = equalizer.apply(a,b)
-  }
-  implicit object NameEquals extends Equal[User]{
-    override def apply(a: User, b: User): Boolean = a.name == b.name}
-
-  object FullEquals extends Equal[User]{
-    override def apply(a: User, b: User): Boolean = a.name == b.name && a.email == b.email
-  }
-  val anotherUser = User("sreenu",23,"Ssds")
-
-  println(Equal(user,anotherUser))
   // Ad hoc polimorphism
+
+  // Part 3 - Type Enrichments
+  implicit class HTMLEnrichment[T](value:T){
+    def toHTML(implicit serializer: HTMLSerializer[T]):String = serializer.serialize(value)
+  }
+
+  println(user.toHTML(UserSerializer)) // println(new HTMLEnrichment[User](jhon).toHTML(UserSerializer)
+  println(user.toHTML)
+  /*
+  * extends new Types
+  * */
+  println(2.toHTML)
+
+  /*
+  *   TYpe class itself
+  *   Type class instances
+  *   conversion with implicit classes
+  * */
 
 }
